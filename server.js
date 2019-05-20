@@ -2,9 +2,6 @@ const express = require("express");
 const app = express();
 const path = require("path");
 
-require("dotenv").config();
-
-
 if (process.env.NODE_ENV === "production") {
   const forceSSL = function() {
     return function(req, res, next) {
