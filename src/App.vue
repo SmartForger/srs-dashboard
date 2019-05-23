@@ -4,6 +4,7 @@
     <div class="charts">
       <Percentage :size="400" :percent="98" label="On-Time Percentage (MTD)"/>
       <Percentage :size="400" :percent="65" label="On-Time Percentage (YTD)"/>
+      <SamplesChart :height="400" />
     </div>
     <div class="tables">
       <div class="percentage-table">
@@ -32,6 +33,7 @@
 <script>
 import Header from "./components/Header.vue";
 import Percentage from "./components/Percentage.vue";
+import SamplesChart from "./components/SamplesChart.vue";
 import Table from "./components/Table";
 import { table1, table2 } from "./mock";
 
@@ -40,6 +42,7 @@ export default {
   components: {
     Header,
     Percentage,
+    SamplesChart,
     Table
   },
   data() {

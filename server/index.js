@@ -20,6 +20,7 @@ app.get("/*", function(req, res) {
 });
 
 const PORT = process.env.PORT || 8000;
-const server = app.listen(PORT, function() {
+app.listen(PORT, function() {
+  // eslint-disable-next-line no-console
   console.log(`Server listening on port ${PORT}`);
 });

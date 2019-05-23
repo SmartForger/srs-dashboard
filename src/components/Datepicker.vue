@@ -43,17 +43,14 @@ export default {
   },
   methods: {
     openCalendar() {
-      console.log('show calendar');
       this.visible = true;
     },
     hideCalendar() {
       if (this.visible) {
-        console.log('hide calendar');
         this.visible = false;
       }
     },
     selectDate(evt) {
-      console.log(evt);
       this.visible = false;
       this.model = evt.date;
     }
