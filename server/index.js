@@ -22,7 +22,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "dist")));
 app.use(apiRoute());
 app.get("/*", function(req, res) {
-  res.sendFile(path.join(__dirname, "dist/index.html"));
+  res.sendFile(path.join(__dirname, "../dist/index.html"));
 });
 
 const PORT = process.env.PORT || 8000;
