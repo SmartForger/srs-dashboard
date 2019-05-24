@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(forceSSL());
 }
 app.use(cors());
-app.use(express.static(path.join(__dirname, "dist")));
+app.use(express.static(path.join(__dirname, "../dist")));
 app.use(apiRoute());
 app.get("/*", function(req, res) {
   res.sendFile(path.join(__dirname, "../dist/index.html"));
