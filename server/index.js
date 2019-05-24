@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const path = require("path");
+require('dotenv').config();
+
+const apiRoute = require('./api');
 
 if (process.env.NODE_ENV === "production") {
   const forceSSL = function() {
@@ -15,6 +18,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(forceSSL());
 }
 app.use(express.static(path.join(__dirname, "dist")));
+app.use(apiRoute());
 app.get("/*", function(req, res) {
   res.sendFile(path.join(__dirname, "dist/index.html"));
 });
