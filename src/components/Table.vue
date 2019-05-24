@@ -8,17 +8,34 @@
           </tr>
         </thead>
         <tbody>
-          <tr :key="i" v-for="(row, i) in data">
+          <tr :key="i" v-for="(row, i) in pagedData">
             <td :key="j" v-for="(col, j) in columns">{{ row[col.field] }}</td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="separator"/>
+    <div class="paginator">
+      <div class="paginator-info">
+        <span>Showing {{ startIndex }} to {{ endIndex }} of {{ total }} records</span>
+        <select v-model="pageSize" @change="handlePageSizeChange">
+          <option :value="5">5</option>
+          <option :value="10">10</option>
+          <option :value="25">25</option>
+        </select>
+        <label for="pagesize">per page</label>
+      </div>
+      <div class="paginator-actions">
+        <a @click="changePage(page)">&lt;</a>
+        <a :key="i" :class="pageLinkClass(p)" @click="changePage(p)" v-for="(p, i) in pages">{{ p }}</a>
+        <a @click="changePage(page + 2)">&gt;</a>
+      </div>
+    </div>
+    <div class="separator"/>
     <div class="footer">
       <div class="datepickers">
-        <Datepicker label="Start Date" value="2019-02-28" />
-        <Datepicker label="End Date" value="2019-02-28" />
+        <Datepicker label="Start Date" value="2019-02-28"/>
+        <Datepicker label="End Date" value="2019-02-28"/>
       </div>
       <div>
         <slot></slot>
@@ -28,7 +45,7 @@
 </template>
 
 <script>
-import Datepicker from './Datepicker';
+import Datepicker from "./Datepicker";
 
 export default {
   name: "Table",
@@ -38,6 +55,65 @@ export default {
   props: {
     columns: Array,
     data: Array
+  },
+  computed: {
+    startIndex() {
+      return this.page * this.pageSize + 1;
+    },
+    endIndex() {
+      return Math.min(this.startIndex + this.pageSize - 1, this.data.length);
+    },
+    total() {
+      return this.data.length;
+    },
+    pageCount() {
+      return Math.ceil(this.total / this.pageSize);
+    },
+    pages() {
+      const startPage = Math.max(1, this.page);
+      const endPage = Math.min(this.pageCount, this.page + 2);
+
+      const arr = [];
+      for (let i = startPage; i <= endPage; i++) {
+        arr[i - startPage] = i;
+      }
+
+      return arr;
+    }
+  },
+  data() {
+    return {
+      page: 0,
+      pageSize: 10,
+      pagedData: []
+    };
+  },
+  methods: {
+    pageLinkClass(p) {
+      return p === this.page + 1 ? "p-link current" : "p-link";
+    },
+    paginate() {
+      this.pagedData = this.data.slice(this.startIndex - 1, this.endIndex);
+    },
+    changePage(p) {
+      if (p < 1 || p > this.pageCount) {
+        return;
+      }
+
+      this.page = p - 1;
+      this.paginate();
+    },
+    handlePageSizeChange(ev) {
+      this.paginate();
+    }
+  },
+  mounted() {
+    this.paginate();
+  },
+  watch: {
+    data() {
+      this.paginate();
+    }
   }
 };
 </script>
@@ -96,5 +172,41 @@ td {
 }
 .datepickers {
   display: flex;
+}
+.paginator {
+  display: flex;
+  justify-content: space-between;
+  color: #555;
+  padding: 20px 30px;
+  align-items: center;
+  user-select: none;
+
+  .paginator-info {
+    font-size: 14px;
+
+    select {
+      margin-left: 30px;
+      margin-right: 10px;
+    }
+  }
+
+  a {
+    padding: 0 5px;
+    cursor: pointer;
+
+    &:hover:not(.current) {
+      color: #5fc3a1 !important;
+    }
+
+    &.p-link {
+      cursor: pointer;
+      color: #aaa;
+    }
+
+    &.current {
+      cursor: default;
+      color: #555;
+    }
+  }
 }
 </style>

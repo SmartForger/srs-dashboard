@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const path = require("path");
+const cors = require("cors");
 require('dotenv').config();
 
 const apiRoute = require('./api');
@@ -17,6 +18,7 @@ if (process.env.NODE_ENV === "production") {
 
   app.use(forceSSL());
 }
+app.use(cors());
 app.use(express.static(path.join(__dirname, "dist")));
 app.use(apiRoute());
 app.get("/*", function(req, res) {

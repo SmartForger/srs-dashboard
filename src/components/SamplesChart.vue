@@ -32,7 +32,7 @@ export default {
 
       const container = d3.select("#chart_container");
       container.select("svg").remove();
-      const svg = container
+      container
         .append("svg")
         .attr("width", svgWidth)
         .attr("height", svgHeight);
@@ -42,7 +42,7 @@ export default {
     this.$nextTick(() => {
       this.makeChart();
 
-      this.makeChartThrottled = _.throttle(() => {
+      this.makeChartThrottled = throttle(() => {
         this.makeChart();
       }, 800);
       window.addEventListener("resize", this.makeChartThrottled);

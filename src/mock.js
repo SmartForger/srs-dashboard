@@ -17,8 +17,8 @@ export const table1 = {
       label: "Ship Date"
     },
     {
-      field: "Complete_By",
-      label: "Complete By"
+      field: "Completed_By",
+      label: "Completed By"
     },
     {
       field: "Status",
@@ -31,7 +31,7 @@ export const table1 = {
       Customer_Name: "[Customer_Name]",
       Ship_Date: "[Ship_Date]",
       Time_Shipped: "[Time_Shipped]",
-      Complete_By: "[Completed_By]",
+      Completed_By: "[Completed_By]",
       Status: "ON TIME"
     },
     {
@@ -39,7 +39,7 @@ export const table1 = {
       Customer_Name: "[Customer_Name]",
       Ship_Date: "[Ship_Date]",
       Time_Shipped: "[Time_Shipped]",
-      Complete_By: "[Completed_By]",
+      Completed_By: "[Completed_By]",
       Status: "ON TIME"
     },
     {
@@ -47,7 +47,7 @@ export const table1 = {
       Customer_Name: "[Customer_Name]",
       Ship_Date: "[Ship_Date]",
       Time_Shipped: "[Time_Shipped]",
-      Complete_By: "[Completed_By]",
+      Completed_By: "[Completed_By]",
       Status: "LATE"
     },
     {
@@ -55,7 +55,7 @@ export const table1 = {
       Customer_Name: "[Customer_Name]",
       Ship_Date: "[Ship_Date]",
       Time_Shipped: "[Time_Shipped]",
-      Complete_By: "[Completed_By]",
+      Completed_By: "[Completed_By]",
       Status: "ON TIME"
     },
     {
@@ -63,7 +63,7 @@ export const table1 = {
       Customer_Name: "[Customer_Name]",
       Ship_Date: "[Ship_Date]",
       Time_Shipped: "[Time_Shipped]",
-      Complete_By: "[Completed_By]",
+      Completed_By: "[Completed_By]",
       Status: "LATE"
     }
   ]

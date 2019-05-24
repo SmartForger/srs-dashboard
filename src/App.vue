@@ -2,9 +2,9 @@
   <div id="app">
     <Header/>
     <div class="charts">
-      <Percentage :size="400" :percent="98" label="On-Time Percentage (MTD)"/>
-      <Percentage :size="400" :percent="65" label="On-Time Percentage (YTD)"/>
-      <SamplesChart :height="400" />
+      <Percentage :size="400" :percent="percentMonth" label="On-Time Percentage (MTD)"/>
+      <Percentage :size="400" :percent="percentYear" label="On-Time Percentage (YTD)"/>
+      <SamplesChart :height="400"/>
     </div>
     <div class="tables">
       <div class="percentage-table">
@@ -21,7 +21,10 @@
             <div class="statistics-label">TOTATL SAMPLES COMPLETED</div>
             <div>
               <div class="statistics-value">514</div>
-              <div class="statistics-label total">of <span>525</span></div>
+              <div class="statistics-label total">
+                of
+                <span>525</span>
+              </div>
             </div>
           </div>
         </Table>
@@ -36,6 +39,12 @@ import Percentage from "./components/Percentage.vue";
 import SamplesChart from "./components/SamplesChart.vue";
 import Table from "./components/Table";
 import { table1, table2 } from "./mock";
+import {
+  getPercentageMonth,
+  getPercentageYear,
+  getTableData1,
+  getTableData2
+} from "./api";
 
 export default {
   name: "app",
@@ -48,8 +57,28 @@ export default {
   data() {
     return {
       table1,
-      table2
+      table2,
+      percentMonth: 0,
+      percentYear: 0
     };
+  },
+  mounted() {
+    getPercentageMonth().then(({ data: responseData }) => {
+      this.percentMonth = Math.round(
+        responseData.data[0]["On_time_percentage_current_month"]
+      );
+    });
+    getPercentageYear().then(({ data: responseData }) => {
+      this.percentYear = Math.round(
+        responseData.data[0]["On_time_percentage_current_year"]
+      );
+    });
+    getTableData1().then(({ data: responseData }) => {
+      this.table1.data = responseData.data;
+    });
+    getTableData2().then(({ data: responseData }) => {
+      this.table2.data = responseData.data;
+    });
   }
 };
 </script>
@@ -105,7 +134,6 @@ export default {
 
   span {
     font-size: 20px;
-
   }
 }
 </style>

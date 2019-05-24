@@ -20,10 +20,7 @@ from rd_request
 where   Status = 'shipped' and month( Time_Shipped) = month(now()) and not isnull(Time_Shipped) ) B on A.recordid = B.recordid 
   `;
 
-  return pool.query(sql).then((result) => {
-    console.log(result);
-    return result;
-  });
+  return pool.query(sql);
 }
 
 function getOnTimeYear() {
@@ -84,7 +81,7 @@ function getTableData() {
 SELECT A.Request_ID, B.Customer_Name, A.Sample_ID, A.qty, B.Time_created as 'Date Requested', B.Time_Shipped as 'Date Completed'
 FROM sample_request.rd_sample A
 Join sample_request.rd_request B 
-	ON A.Request_ID = B.Request_ID;
+ON A.Request_ID = B.Request_ID;
   `;
 
   return pool.query(sql);
@@ -92,7 +89,7 @@ Join sample_request.rd_request B
 
 function getRawData() {
   const sql = `
-select Request_ID as 'Sample ID' ,Customer_Name as 'Customer' ,Ship_Date as 'Due Date', date(Time_Shipped )as 'Ship Date' ,Completed_By as 'Completed By' , if(date(Ship_Date) >= date(Time_Shipped), 'ON TIME' ,'LATE') as 'Status' from rd_request 
+select Request_ID ,Customer_Name, Ship_Date, date(Time_Shipped) as 'Time_Shipped', Completed_By, if(date(Ship_Date) >= date(Time_Shipped), 'ON TIME' ,'LATE') as 'Status' from rd_request 
 where Status = 'shipped'  and not isnull(Time_Shipped)
   `;
   return pool.query(sql);
