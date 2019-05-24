@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = process.env.BASE_URL || "http://localhost:8000";
 
 export const getPercentageMonth = () =>
   axios.get(`${BASE_URL}/percentage/month`);
