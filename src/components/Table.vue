@@ -70,8 +70,8 @@ export default {
       return Math.ceil(this.total / this.pageSize);
     },
     pages() {
-      const startPage = Math.max(1, this.page);
-      const endPage = Math.min(this.pageCount, this.page + 2);
+      const startPage = Math.max(1, this.page - 1);
+      const endPage = Math.min(this.pageCount, this.page + 3);
 
       const arr = [];
       for (let i = startPage; i <= endPage; i++) {

@@ -11,7 +11,7 @@
         <Table :columns="table1.columns" :data="table1.data">
           <div class="statistics">
             <div class="statistics-label">ON-TIME PERCENTAGE</div>
-            <div class="statistics-value">92%</div>
+            <div class="statistics-value">{{ onTimePercentage }}%</div>
           </div>
         </Table>
       </div>
@@ -61,6 +61,12 @@ export default {
       percentMonth: 0,
       percentYear: 0
     };
+  },
+  computed: {
+    onTimePercentage() {
+      const ontime = this.table1.data.filter(row => row.Status === 'ON TIME');
+      return Math.floor(ontime.length / this.table1.data.length * 100);
+    }
   },
   mounted() {
     getPercentageMonth().then(({ data: responseData }) => {
