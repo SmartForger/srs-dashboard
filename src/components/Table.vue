@@ -34,8 +34,8 @@
     <div class="separator"/>
     <div class="footer">
       <div class="datepickers">
-        <Datepicker label="Start Date" value="2019-02-28"/>
-        <Datepicker label="End Date" value="2019-02-28"/>
+        <Datepicker label="Start Date" :date="dateFrom"/>
+        <Datepicker label="End Date" :date="dateTo"/>
       </div>
       <div>
         <slot></slot>
@@ -82,10 +82,19 @@ export default {
     }
   },
   data() {
+    const dateTo = new Date();
+    const dateFrom = new Date(
+      dateTo.getFullYear(),
+      dateTo.getMonth(),
+      1
+    );
+
     return {
       page: 0,
       pageSize: 10,
-      pagedData: []
+      pagedData: [],
+      dateFrom,
+      dateTo
     };
   },
   methods: {

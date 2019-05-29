@@ -6,14 +6,20 @@
       <img src="../assets/calendar.png" alt="picker">
     </div>
     <div class="picker-wrapper">
-      <v-calendar :attributes="attrs" v-model="model" @dayclick="selectDate($event)" v-if="visible"/>
+      <v-calendar
+        mode="single"
+        :attributes="attrs"
+        v-model="model"
+        @dayclick="selectDate($event)"
+        v-if="visible"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import ClickOutside from 'vue-click-outside'
-import moment from 'moment'
+import ClickOutside from "vue-click-outside";
+import moment from "moment";
 
 export default {
   name: "Datepicker",
@@ -23,7 +29,7 @@ export default {
   },
   computed: {
     dateText() {
-      return moment(this.model).format('MMM DD, YYYY');
+      return moment(this.model).format("MMM DD, YYYY");
     }
   },
   data() {
@@ -34,11 +40,11 @@ export default {
           highlight: {
             backgroundColor: "#ff8080"
           },
-          dates: new Date(2018, 0, 1)
+          dates: this.date
         }
       ],
       visible: false,
-      model: this.date
+      model: this.date || null
     };
   },
   methods: {
@@ -53,6 +59,15 @@ export default {
     selectDate(evt) {
       this.visible = false;
       this.model = evt.date;
+      this.attrs = [
+        {
+          key: "today",
+          highlight: {
+            backgroundColor: "#ff8080"
+          },
+          dates: evt.date
+        }
+      ];
     }
   },
   directives: {

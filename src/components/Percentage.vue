@@ -32,7 +32,7 @@
         :font-size="fontSize"
         font-weigth="bold"
         text-anchor="middle"
-      >{{ percent }}%</text>
+      >{{ animatedPercent }}%</text>
       <text
         :x="centerX"
         :y="textY1"
@@ -81,8 +81,8 @@ export default {
       return `url(#${this.clipId2})`;
     },
     color() {
-      const p = Math.min(100, Math.max(0, this.percent));
-      if (this.percent < 50) {
+      const p = Math.min(100, Math.max(0, this.animatedPercent));
+      if (this.animatedPercent < 50) {
         return this.getColor(p, 216, 90, 76, 243, 177, 61);
       } else {
         return this.getColor(p, 243, 177, 61, 95, 193, 159);
@@ -98,7 +98,7 @@ export default {
       return Math.round(this.size * 3 / 50) + "px";
     },
     textY1() {
-      return Math.round((this.size * 7) / 8);
+      return Math.round((this.size * 15) / 16);
     },
   },
   data() {
@@ -107,13 +107,14 @@ export default {
       clipId2: v4(),
       textStyle: {
         fontWeight: "bold"
-      }
+      },
+      animatedPercent: 0
     };
   },
   methods: {
     createPath(innerRadius, outerRadius) {
       const cy = this.size / 2;
-      const angle = (this.percent * Math.PI) / 100;
+      const angle = (this.animatedPercent * Math.PI) / 100;
 
       const p = [
         {
@@ -145,6 +146,20 @@ export default {
       const g = Math.round(((g2 - g1) * p) / 100 + g1);
       const b = Math.round(((b2 - b1) * p) / 100 + b1);
       return `rgb(${r}, ${g}, ${b})`;
+    }
+  },
+  watch: {
+    percent(newValue) {
+      this.$nextTick(() => {
+        const dir = this.animatedPercent > this.percent ? -1 : 1;
+        this.animatedTimer = setInterval(() => {
+          if (this.animatedPercent !== this.percent) {
+            this.animatedPercent += dir;
+          } else {
+            clearInterval(this.animatedTimer);
+          }
+        });
+      });
     }
   }
 };

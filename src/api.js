@@ -10,3 +10,5 @@ export const getPercentageMonth = () =>
 export const getPercentageYear = () => axios.get(`${BASE_URL}/percentage/year`);
 export const getTableData1 = () => axios.get(`${BASE_URL}/data/raw`);
 export const getTableData2 = () => axios.get(`${BASE_URL}/data/table`);
+export const getCompletedCount = () => axios.get(`${BASE_URL}/count/completed`);
+export const getRequestedCount = () => axios.get(`${BASE_URL}/count/requested`);

@@ -4,7 +4,7 @@
     <div class="charts">
       <Percentage :size="400" :percent="percentMonth" label="On-Time Percentage (MTD)"/>
       <Percentage :size="400" :percent="percentYear" label="On-Time Percentage (YTD)"/>
-      <SamplesChart :height="400"/>
+      <SamplesChart :height="400" :chartData="chartData"/>
     </div>
     <div class="tables">
       <div class="percentage-table">
@@ -43,7 +43,9 @@ import {
   getPercentageMonth,
   getPercentageYear,
   getTableData1,
-  getTableData2
+  getTableData2,
+  getCompletedCount,
+  getRequestedCount
 } from "./api";
 
 export default {
@@ -59,13 +61,14 @@ export default {
       table1,
       table2,
       percentMonth: 0,
-      percentYear: 0
+      percentYear: 0,
+      chartData: []
     };
   },
   computed: {
     onTimePercentage() {
-      const ontime = this.table1.data.filter(row => row.Status === 'ON TIME');
-      return Math.floor(ontime.length / this.table1.data.length * 100);
+      const ontime = this.table1.data.filter(row => row.Status === "ON TIME");
+      return Math.floor((ontime.length / this.table1.data.length) * 100);
     }
   },
   mounted() {
@@ -85,6 +88,48 @@ export default {
     getTableData2().then(({ data: responseData }) => {
       this.table2.data = responseData.data;
     });
+    Promise.all([getCompletedCount(), getRequestedCount()])
+      .then(result => result.map(res => res.data.data))
+      .then(result => {
+        const mergedArr = result[1].map(el => ({
+          requested: el['Sum of Requested'],
+          year: el['YearCreated'],
+          week: el['WeekCreated']
+        }));
+        result[0].forEach(el0 => {
+          const el1 = mergedArr.find(
+            el =>
+              el.year === el0.YearShipped &&
+              el.week === el0.WeekShipped
+          );
+
+          if (el1) {
+            el1.completed = el0["Sum of Completed"];
+          } else {
+            const i = mergedArr.findIndex(
+              el1 =>
+                el1.year > el0.YearShipped ||
+                (el1.year === el0.YearShipped &&
+                  el1.week > el0.WeekShipped)
+            );
+
+            if (i >= 0) {
+              mergedArr.splice(i, 0, {
+                year: el0.YearShipped,
+                week: el0.WeekShipped,
+                completed: el0["Sum of Completed"]
+              });
+            } else {
+              mergedArr.push({
+                year: el0.YearShipped,
+                week: el0.WeekShipped,
+                completed: el0["Sum of Completed"]
+              });
+            }
+          }
+        });
+        this.chartData = mergedArr;
+      });
   }
 };
 </script>
