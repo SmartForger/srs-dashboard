@@ -98,7 +98,7 @@ export default {
       return Math.round(this.size * 3 / 50) + "px";
     },
     textY1() {
-      return Math.round((this.size * 15) / 16);
+      return this.size - 10;
     },
   },
   data() {

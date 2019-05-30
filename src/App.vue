@@ -190,7 +190,7 @@ export default {
 .tables {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 60px;
 }
 .percentage-table {
   padding: 30px;

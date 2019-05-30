@@ -43,9 +43,9 @@ export default {
       const svgHeight = this.$refs.container.clientHeight;
       this.dimensions = {
         left: 30,
-        top: 81,
+        top: 50,
         right: 30,
-        bottom: 80
+        bottom: 50
       };
       this.dimensions.width =
         svgWidth - this.dimensions.left - this.dimensions.right;
@@ -66,6 +66,18 @@ export default {
         .append("svg")
         .attr("width", svgWidth)
         .attr("height", svgHeight);
+
+      this.chart
+        .append("text")
+        .text("Samples Completed/Requested")
+        .attr("fill", "white")
+        .attr("font-size", "24px")
+        .attr("font-weight", "bold")
+        .attr("text-anchor", "middle")
+        .attr(
+          "transform",
+          `translate(${svgWidth / 2}, ${svgHeight - 10})`
+        );
 
       this.addGradients();
 
@@ -112,6 +124,24 @@ export default {
         .call(d3.axisLeft(this.yScaleRequested).tickSize(0));
 
       axisContainer.selectAll("text").remove();
+
+      axisContainer.append("text")
+        .text("COMPLETED")
+        .attr("style", `
+          transform: translate(20px, ${top}px) rotate(-90deg);
+          font-size: 16px;
+          font-weight: bold;
+          text-anchor: end;
+          fill: white;
+        `.replace(/\s+/g, ' '));
+      axisContainer.append("text")
+        .text("REQUESTED")
+        .attr("style", `
+          transform: translate(20px, ${height + top}px) rotate(-90deg);
+          font-size: 16px;
+          font-weight: bold;
+          fill: white;
+        `.replace(/\s+/g, ' '));
     },
     drawBars() {
       d3.select(".bars-completed").remove();
@@ -172,7 +202,7 @@ export default {
       completedBars
         .append("text")
         .attr("class", "date-text")
-        .attr("transform", `translate(${barWidth / 2}, -16)`)
+        .attr("transform", `translate(${barWidth / 2}, -30)`)
         .text(d => {
           const days = 1 + (d.week - 1) * 7;
           const dStart = new Date(d.year, 0, days);
