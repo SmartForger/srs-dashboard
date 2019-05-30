@@ -87,23 +87,21 @@ export default {
   },
   beforeMount() {
     this.getTableData1 = _.throttle((from, to) => {
-      const to1 = new Date(to);
-      to1.setDate(to.getDate() + 1);
+      const to1 = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
 
       getTableData1(
         from.toISOString(),
-        to.toISOString()
+        to1.toISOString()
       ).then(({ data: responseData }) => {
         this.table1Data = responseData.data;
       });
     });
     this.getTableData2 = _.throttle((from, to) => {
-      const to1 = new Date(to);
-      to1.setDate(to.getDate() + 1);
+      const to1 = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
 
       getTableData2(
         from.toISOString(),
-        to.toISOString()
+        to1.toISOString()
       ).then(({ data: responseData }) => {
         this.table2Data = responseData.data;
       });

@@ -96,6 +96,8 @@ ON A.Request_ID = B.Request_ID
 ${whereStr};
   `;
 
+  console.log(sql);
+
   return pool.query(sql);
 }
 
@@ -115,6 +117,9 @@ select
   if(date(Ship_Date) >= date(Time_Shipped), 'ON TIME' ,'LATE') as 'Status' from rd_request 
 where Status = 'shipped'  and not isnull(Time_Shipped) ${additionalWhere}
   `;
+
+  console.log(sql);
+
 
   return pool.query(sql);
 }

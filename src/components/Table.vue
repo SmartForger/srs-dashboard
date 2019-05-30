@@ -41,7 +41,7 @@
     <div class="footer">
       <div class="datepickers">
         <Datepicker label="Start Date" :date="dateFrom" @dateChange="dateFromChanged"/>
-        <Datepicker label="End Date" :date="dateTo" @dateChange="dateFromChanged"/>
+        <Datepicker label="End Date" :date="dateTo" @dateChange="dateToChanged"/>
       </div>
       <div>
         <slot></slot>

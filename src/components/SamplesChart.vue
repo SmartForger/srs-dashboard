@@ -96,7 +96,7 @@ export default {
       const axisContainer = this.chart
         .append("g")
         .attr("class", "axis-container");
-      const { width, height, left, top } = this.dimensions;
+      const { height, left, top } = this.dimensions;
 
       axisContainer
         .append("g")
