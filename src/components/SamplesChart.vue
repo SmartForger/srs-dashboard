@@ -1,6 +1,6 @@
 <template>
   <div class="samples-chart" :style="containerStyle">
-    <div id="chart_container" ref="container" v-if="dataLoaded">
+    <div id="chart_container" ref="container">
       <div class="button left" @click="moveLeft"/>
       <div class="button right" @click="moveRight"/>
     </div>
@@ -23,7 +23,9 @@ export default {
       startIndex: 0,
       viewData: [],
       dimensions: {},
-      dataLoaded: false
+      dataLoaded: false,
+      dummyData: [],
+      shouldAnimate: true
     };
   },
   computed: {
@@ -59,6 +61,9 @@ export default {
         this.startIndex + this.count
       );
 
+      this.makeDummyData();
+      console.log("make chart", this.dataLoaded, this.dummyData);
+
       const container = d3.select("#chart_container");
       container.select("svg").remove();
 
@@ -74,21 +79,24 @@ export default {
         .attr("font-size", "24px")
         .attr("font-weight", "bold")
         .attr("text-anchor", "middle")
-        .attr(
-          "transform",
-          `translate(${svgWidth / 2}, ${svgHeight - 10})`
-        );
+        .attr("transform", `translate(${svgWidth / 2}, ${svgHeight - 10})`);
 
       this.addGradients();
-
       this.defineScales();
-
       this.drawBars();
       this.addChartAxis();
+
+      if (this.dataLoaded && this.shouldAnimate) {
+        this.shouldAnimate = false;
+      }
     },
     defineScales() {
-      const maxCompleted = d3.max(this.chartData, d => d.completed || 0) || 0;
-      const maxRequested = d3.max(this.chartData, d => d.requested || 0) || 0;
+      const maxCompleted = this.dataLoaded
+        ? d3.max(this.chartData, d => d.completed || 0)
+        : 1;
+      const maxRequested = this.dataLoaded
+        ? d3.max(this.chartData, d => d.requested || 0)
+        : 1;
 
       this.yScaleCompleted = d3
         .scaleLinear()
@@ -98,10 +106,12 @@ export default {
         .scaleLinear()
         .range([this.dimensions.height / 2, this.dimensions.height])
         .domain([0, maxRequested]);
+
+      let temp = this.dataLoaded ? this.viewData : this.dummyData;
       this.xScale = d3
         .scaleBand()
         .range([0, this.dimensions.width])
-        .domain(this.viewData.map(el => `${el.year}-${el.week}`));
+        .domain(temp.map(el => `${el.year}-${el.week}`));
     },
     addChartAxis() {
       d3.select(".axis-container").remove();
@@ -125,23 +135,31 @@ export default {
 
       axisContainer.selectAll("text").remove();
 
-      axisContainer.append("text")
+      axisContainer
+        .append("text")
         .text("COMPLETED")
-        .attr("style", `
+        .attr(
+          "style",
+          `
           transform: translate(20px, ${top}px) rotate(-90deg);
           font-size: 16px;
           font-weight: bold;
           text-anchor: end;
           fill: white;
-        `.replace(/\s+/g, ' '));
-      axisContainer.append("text")
+        `.replace(/\s+/g, " ")
+        );
+      axisContainer
+        .append("text")
         .text("REQUESTED")
-        .attr("style", `
+        .attr(
+          "style",
+          `
           transform: translate(20px, ${height + top}px) rotate(-90deg);
           font-size: 16px;
           font-weight: bold;
           fill: white;
-        `.replace(/\s+/g, ' '));
+        `.replace(/\s+/g, " ")
+        );
     },
     drawBars() {
       d3.select(".bars-completed").remove();
@@ -156,11 +174,12 @@ export default {
         .attr("transform", `translate(${left}, ${top})`);
       const completedBars = completedContainer
         .selectAll()
-        .data(this.viewData)
+        .data(this.dataLoaded ? this.viewData : this.dummyData)
         .enter()
         .append("g")
         .attr("transform", d => {
           const x = this.xScale(`${d.year}-${d.week}`);
+          console.log(x);
           return `translate(${x}, 0)`;
         });
       completedBars
@@ -172,7 +191,7 @@ export default {
         )
         .attr("stroke", "#db9792")
         .attr("mask", "url(#fadeCompleted)");
-      completedBars
+      const completedInnerBars = completedBars
         .append("rect")
         .attr("class", "bar-bg")
         .attr("transform", d => {
@@ -184,38 +203,95 @@ export default {
           "height",
           d => height / 2 - this.yScaleCompleted(d.completed || 0)
         );
-      completedBars
-        .append("text")
-        .text(d => d.completed || 0)
-        .attr("class", "bar-value")
-        .attr("text-anchor", "middle")
-        .attr("x", barWidth / 2)
-        .attr("y", d => {
-          let y = this.yScaleCompleted(d.completed || 0);
-          if (height / 2 - y < 30) {
-            y -= 8;
-          } else {
-            y += 24;
-          }
-          return y;
-        });
-      completedBars
-        .append("text")
-        .attr("class", "date-text")
-        .attr("transform", `translate(${barWidth / 2}, -30)`)
-        .text(d => {
-          const days = 1 + (d.week - 1) * 7;
-          const dStart = new Date(d.year, 0, days);
-          const startOfWeek = dStart.getDate() - dStart.getDay();
-          dStart.setDate(startOfWeek);
-          const dEnd = new Date(
-            dStart.getFullYear(),
-            dStart.getMonth(),
-            dStart.getDate() + 6
-          );
-          return `${dStart.getMonth() +
-            1}/${dStart.getDate()} - ${dEnd.getMonth() + 1}/${dEnd.getDate()}`;
-        });
+      if (this.dataLoaded) {
+        const completedTexts = completedBars
+          .append("text")
+          .text(d => d.completed || 0)
+          .attr(
+            "class",
+            this.shouldAnimate ? "bar-value" : "bar-value animated"
+          )
+          .attr("text-anchor", "middle")
+          .attr("x", barWidth / 2)
+          .attr("y", d => {
+            let y = this.yScaleCompleted(d.completed || 0);
+            if (height / 2 - y < 30) {
+              y -= 8;
+            } else {
+              y += 24;
+            }
+            return y;
+          });
+
+        const dateTexts = completedBars
+          .append("text")
+          .attr(
+            "class",
+            this.shouldAnimate ? "date-text" : "date-text animated"
+          )
+          .attr("transform", `translate(${barWidth / 2}, -30)`)
+          .text(d => {
+            const days = 1 + (d.week - 1) * 7;
+            const dStart = new Date(d.year, 0, days);
+            const startOfWeek = dStart.getDate() - dStart.getDay();
+            dStart.setDate(startOfWeek);
+            const dEnd = new Date(
+              dStart.getFullYear(),
+              dStart.getMonth(),
+              dStart.getDate() + 6
+            );
+            return `${dStart.getMonth() +
+              1}/${dStart.getDate()} - ${dEnd.getMonth() +
+              1}/${dEnd.getDate()}`;
+          });
+
+        if (this.shouldAnimate) {
+          dateTexts
+            .transition()
+            .duration(1000)
+            .style("opacity", 1);
+          completedTexts
+            .transition()
+            .duration(1000)
+            .style("opacity", 1)
+            .tween("text", function(d) {
+              var that = d3.select(this);
+              const i = d3.interpolateNumber(0, d.completed || 0);
+              return function(t) {
+                d3.select(this).text(Math.floor(i(t)));
+              };
+            })
+            .attrTween("y", d => {
+              let y1 = this.yScaleCompleted(d.completed || 0);
+              let y0 = 0;
+              if (height / 2 - y1 < 30) {
+                y1 -= 8;
+                y0 = this.yScaleCompleted(0) - 8;
+              } else {
+                y1 += 24;
+                y0 = this.yScaleCompleted(0) + 24;
+              }
+              return d3.interpolateNumber(y0, y1);
+            });
+          completedInnerBars
+            .attr("height", 0)
+            .transition()
+            .duration(1000)
+            .attrTween("height", d => {
+              const h = height / 2 - this.yScaleCompleted(d.completed || 0);
+              console.log(d, h);
+              return d3.interpolateNumber(0, h);
+            })
+            .attrTween("transform", d => {
+              const y0 = this.yScaleCompleted(0);
+              const y1 = this.yScaleCompleted(d.completed || 0);
+              return d3.interpolateString(
+                `translate(${barWidth / 4}, ${y0})`,
+                `translate(${barWidth / 4}, ${y1})`
+              );
+            });
+        }
+      }
 
       const requestedContainer = this.chart
         .append("g")
@@ -223,7 +299,7 @@ export default {
         .attr("transform", `translate(${left}, ${top + height / 2})`);
       const requestedBars = requestedContainer
         .selectAll()
-        .data(this.viewData)
+        .data(this.dataLoaded ? this.viewData : this.dummyData)
         .enter()
         .append("g")
         .attr("transform", d => {
@@ -239,7 +315,7 @@ export default {
         )
         .attr("stroke", "#87352f")
         .attr("mask", "url(#fadeRequested)");
-      requestedBars
+      const requestedInnerBars = requestedBars
         .append("rect")
         .attr("class", "requested-count")
         .attr("transform", `translate(${barWidth / 4}, 0)`)
@@ -248,21 +324,55 @@ export default {
           "height",
           d => this.yScaleRequested(d.requested || 0) - height / 2
         );
-      requestedBars
-        .append("text")
-        .text(d => d.requested || 0)
-        .attr("class", "bar-value")
-        .attr("text-anchor", "middle")
-        .attr("x", barWidth / 2)
-        .attr("y", d => {
-          let y = this.yScaleRequested(d.requested || 0) - height / 2;
-          if (y < 30) {
-            y += 24;
-          } else {
-            y -= 8;
-          }
-          return y;
-        });
+      if (this.dataLoaded) {
+        const requestedBarsText = requestedBars
+          .append("text")
+          .text(d => d.requested || 0)
+          .attr("class", "bar-value")
+          .attr("text-anchor", "middle")
+          .attr("x", barWidth / 2)
+          .attr("y", d => {
+            let y = this.yScaleRequested(d.requested || 0) - height / 2;
+            if (y < 30) {
+              y += 24;
+            } else {
+              y -= 8;
+            }
+            return y;
+          });
+        if (this.shouldAnimate) {
+          requestedBarsText
+            .transition()
+            .duration(1000)
+            .style("opacity", 1)
+            .tween("text", function(d) {
+              const i = d3.interpolateNumber(0, d.requested || 0);
+              return function(t) {
+                d3.select(this).text(Math.floor(i(t)));
+              };
+            })
+            .attrTween("y", d => {
+              let y1 = this.yScaleRequested(d.requested || 0) - height / 2;
+              let y0 = 0;
+              if (y1 < 30) {
+                y1 += 24;
+                y0 = this.yScaleRequested(0) - height / 2 + 24;
+              } else {
+                y1 -= 8;
+                y0 = this.yScaleRequested(0) - height / 2 - 8;
+              }
+              return d3.interpolateNumber(y0, y1);
+            });
+          requestedInnerBars
+            .attr("height", 0)
+            .transition()
+            .duration(1000)
+            .attrTween("height", d => {
+              const h = this.yScaleRequested(d.requested || 0) - height / 2;
+              return d3.interpolateNumber(0, h);
+            });
+        }
+      }
     },
     addGradients() {
       const defs = this.chart.append("defs");
@@ -350,6 +460,10 @@ export default {
         .attr("stop-opacity", 0.7);
     },
     moveLeft() {
+      if (!this.dataLoaded) {
+        return;
+      }
+
       this.startIndex--;
       this.startIndex = Math.max(0, this.startIndex);
       this.viewData = this.chartData.slice(
@@ -362,6 +476,10 @@ export default {
       this.addChartAxis();
     },
     moveRight() {
+      if (!this.dataLoaded) {
+        return;
+      }
+
       this.startIndex++;
       this.startIndex = Math.min(
         this.chartData.length - this.count,
@@ -375,6 +493,18 @@ export default {
       this.defineScales();
       this.drawBars();
       this.addChartAxis();
+    },
+    makeDummyData() {
+      this.dummyData = [];
+
+      for (let i = 0; i < this.count; i++) {
+        this.dummyData.push({
+          year: 2019,
+          week: i,
+          completed: 0,
+          requested: 0
+        });
+      }
     }
   },
   watch: {
@@ -388,6 +518,9 @@ export default {
     }
   },
   mounted() {
+    this.$nextTick(() => {
+      this.makeChart();
+    });
     this.makeChartThrottled = throttle(() => {
       this.makeChart();
     }, 800);
@@ -428,12 +561,14 @@ export default {
   font-weight: bold;
   font-size: 20px;
   fill: white;
+  opacity: 0;
 }
 .date-text {
   fill: white;
   font-size: 14px;
   font-weight: 700;
   text-anchor: middle;
+  opacity: 0;
 }
 .button-outer {
   fill: #ccc;
@@ -472,5 +607,8 @@ export default {
     box-shadow: none;
     box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1);
   }
+}
+.animated {
+  opacity: 1;
 }
 </style>
