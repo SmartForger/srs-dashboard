@@ -14,7 +14,10 @@ export const table1Columns = [
   {
     field: "Ship_Date",
     label: "Due Date",
-    format: formatDate
+    format: d => {
+      const arr = d.slice(0, 10).split("-");
+      return moment(new Date(arr[0], arr[1]-1, arr[2])).format("MMMM DD, YYYY");
+    }
   },
   {
     field: "Time_Shipped",
