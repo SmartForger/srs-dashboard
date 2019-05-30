@@ -79,10 +79,10 @@ Group by YearCreated, WeekCreated
 function getTableData(from, to) {
   let where = [];
   if (from) {
-    where.push(`B.Time_Shipped >= "${from}"`);
+    where.push(`B.Time_created >= "${from}"`);
   }
   if (to) {
-    where.push(`B.Time_Shipped < "${to}"`);
+    where.push(`B.Time_created < "${to}"`);
   }
   const whereStr = where.length > 0 ? `WHERE ${where.join(" AND ")}` : '';
 

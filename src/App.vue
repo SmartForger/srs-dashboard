@@ -20,10 +20,10 @@
           <div class="statistics">
             <div class="statistics-label">TOTATL SAMPLES COMPLETED</div>
             <div>
-              <div class="statistics-value">514</div>
+              <div class="statistics-value">{{ completedSamplesCount }}</div>
               <div class="statistics-label total">
                 of
-                <span>525</span>
+                <span>{{ requestedSamplesCount }}</span>
               </div>
             </div>
           </div>
@@ -75,6 +75,15 @@ export default {
       return this.table1Data.length === 0
         ? 0
         : Math.floor((ontime.length / this.table1Data.length) * 100);
+    },
+    completedSamplesCount() {
+      return this.table2Data
+        .filter(row => row["Date Completed"])
+        .reduce((sum, row) => sum + row.qty, 0);
+    },
+    requestedSamplesCount() {
+      return this.table2Data
+        .reduce((sum, row) => sum + row.qty, 0);
     }
   },
   methods: {
@@ -85,29 +94,30 @@ export default {
       this.getTableData2(ev.dateFrom, ev.dateTo);
     },
     formatDate(date) {
-      return date.toISOString().replace('T', ' ').slice(0, 19);
+      return date
+        .toISOString()
+        .replace("T", " ")
+        .slice(0, 19);
     }
   },
   beforeMount() {
     this.getTableData1 = _.throttle((from, to) => {
       const to1 = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
 
-      getTableData1(
-        this.formatDate(from),
-        this.formatDate(to1)
-      ).then(({ data: responseData }) => {
-        this.table1Data = responseData.data;
-      });
+      getTableData1(this.formatDate(from), this.formatDate(to1)).then(
+        ({ data: responseData }) => {
+          this.table1Data = responseData.data;
+        }
+      );
     });
     this.getTableData2 = _.throttle((from, to) => {
       const to1 = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
 
-      getTableData2(
-        this.formatDate(from),
-        this.formatDate(to1)
-      ).then(({ data: responseData }) => {
-        this.table2Data = responseData.data;
-      });
+      getTableData2(this.formatDate(from), this.formatDate(to1)).then(
+        ({ data: responseData }) => {
+          this.table2Data = responseData.data;
+        }
+      );
     });
   },
   mounted() {
