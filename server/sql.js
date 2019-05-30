@@ -96,8 +96,6 @@ ON A.Request_ID = B.Request_ID
 ${whereStr};
   `;
 
-  console.log(sql);
-
   return pool.query(sql);
 }
 
@@ -113,13 +111,10 @@ function getRawData(from, to) {
 
   const sql = `
 select
-  Request_ID ,Customer_Name, Ship_Date, date(Time_Shipped) as 'Time_Shipped', Completed_By,
+  Request_ID ,Customer_Name, Ship_Date, Time_Shipped, Completed_By,
   if(date(Ship_Date) >= date(Time_Shipped), 'ON TIME' ,'LATE') as 'Status' from rd_request 
 where Status = 'shipped'  and not isnull(Time_Shipped) ${additionalWhere}
   `;
-
-  console.log(sql);
-
 
   return pool.query(sql);
 }
