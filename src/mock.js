@@ -1,122 +1,60 @@
-export const table1 = {
-  columns: [
-    {
-      field: "Request_ID",
-      label: "Sample ID"
-    },
-    {
-      field: "Customer_Name",
-      label: "Customer"
-    },
-    {
-      field: "Ship_Date",
-      label: "Due Date"
-    },
-    {
-      field: "Time_Shipped",
-      label: "Ship Date"
-    },
-    {
-      field: "Completed_By",
-      label: "Completed By"
-    },
-    {
-      field: "Status",
-      label: "Status"
-    }
-  ],
-  data: [
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Ship_Date: "[Ship_Date]",
-      Time_Shipped: "[Time_Shipped]",
-      Completed_By: "[Completed_By]",
-      Status: "ON TIME"
-    },
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Ship_Date: "[Ship_Date]",
-      Time_Shipped: "[Time_Shipped]",
-      Completed_By: "[Completed_By]",
-      Status: "ON TIME"
-    },
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Ship_Date: "[Ship_Date]",
-      Time_Shipped: "[Time_Shipped]",
-      Completed_By: "[Completed_By]",
-      Status: "LATE"
-    },
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Ship_Date: "[Ship_Date]",
-      Time_Shipped: "[Time_Shipped]",
-      Completed_By: "[Completed_By]",
-      Status: "ON TIME"
-    },
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Ship_Date: "[Ship_Date]",
-      Time_Shipped: "[Time_Shipped]",
-      Completed_By: "[Completed_By]",
-      Status: "LATE"
-    }
-  ]
-};
-export const table2 = {
-  columns: [
-    {
-      field: "Request_ID",
-      label: "Sample ID"
-    },
-    {
-      field: "Customer_Name",
-      label: "Customer"
-    },
-    {
-      field: "Sample_ID",
-      label: "Sample Number"
-    },
-    {
-      field: "qty",
-      label: "Quantity"
-    }
-  ],
-  data: [
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Sample_ID: "[Sample_ID]",
-      qty: "[qty]"
-    },
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Sample_ID: "[Sample_ID]",
-      qty: "[qty]"
-    },
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Sample_ID: "[Sample_ID]",
-      qty: "[qty]"
-    },
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Sample_ID: "[Sample_ID]",
-      qty: "[qty]"
-    },
-    {
-      Request_ID: "[Request_ID]",
-      Customer_Name: "[Customer_Name]",
-      Sample_ID: "[Sample_ID]",
-      qty: "[qty]"
-    }
-  ]
-};
+import * as moment from "moment";
+
+const formatDate = d => (d ? moment(d).format("MMMM DD, YYYY") : "");
+
+export const table1Columns = [
+  {
+    field: "Request_ID",
+    label: "Sample ID"
+  },
+  {
+    field: "Customer_Name",
+    label: "Customer"
+  },
+  {
+    field: "Ship_Date",
+    label: "Due Date",
+    format: formatDate
+  },
+  {
+    field: "Time_Shipped",
+    label: "Ship Date",
+    format: formatDate
+  },
+  {
+    field: "Completed_By",
+    label: "Completed By"
+  },
+  {
+    field: "Status",
+    label: "Status"
+  }
+];
+export const table2Columns = [
+  {
+    field: "Request_ID",
+    label: "Sample ID"
+  },
+  {
+    field: "Customer_Name",
+    label: "Customer"
+  },
+  {
+    field: "Sample_ID",
+    label: "Sample Number"
+  },
+  {
+    field: "qty",
+    label: "Quantity"
+  },
+  {
+    field: "Date Completed",
+    label: "Date Completed",
+    format: formatDate
+  },
+  {
+    field: "Date Requested",
+    label: "Date Requested",
+    format: formatDate
+  }
+];

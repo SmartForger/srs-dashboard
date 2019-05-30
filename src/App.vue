@@ -8,7 +8,7 @@
     </div>
     <div class="tables">
       <div class="percentage-table">
-        <Table :columns="table1.columns" :data="table1.data">
+        <Table :columns="table1Columns" :data="table1Data" @filterChange="handleTable1FilterChange">
           <div class="statistics">
             <div class="statistics-label">ON-TIME PERCENTAGE</div>
             <div class="statistics-value">{{ onTimePercentage }}%</div>
@@ -16,7 +16,7 @@
         </Table>
       </div>
       <div class="completed-samples-table">
-        <Table :columns="table2.columns" :data="table2.data">
+        <Table :columns="table2Columns" :data="table2Data" @filterChange="handleTable2FilterChange">
           <div class="statistics">
             <div class="statistics-label">TOTATL SAMPLES COMPLETED</div>
             <div>
@@ -34,11 +34,13 @@
 </template>
 
 <script>
+import _ from "lodash";
+
 import Header from "./components/Header.vue";
 import Percentage from "./components/Percentage.vue";
 import SamplesChart from "./components/SamplesChart.vue";
 import Table from "./components/Table";
-import { table1, table2 } from "./mock";
+import { table1Columns, table2Columns } from "./mock";
 import {
   getPercentageMonth,
   getPercentageYear,
@@ -58,8 +60,10 @@ export default {
   },
   data() {
     return {
-      table1,
-      table2,
+      table1Columns,
+      table1Data: [],
+      table2Columns,
+      table2Data: [],
       percentMonth: 0,
       percentYear: 0,
       chartData: []
@@ -67,9 +71,43 @@ export default {
   },
   computed: {
     onTimePercentage() {
-      const ontime = this.table1.data.filter(row => row.Status === "ON TIME");
-      return Math.floor((ontime.length / this.table1.data.length) * 100);
+      const ontime = this.table1Data.filter(row => row.Status === "ON TIME");
+      return this.table1Data.length === 0
+        ? 0
+        : Math.floor((ontime.length / this.table1Data.length) * 100);
     }
+  },
+  methods: {
+    handleTable1FilterChange(ev) {
+      this.getTableData1(ev.dateFrom, ev.dateTo);
+    },
+    handleTable2FilterChange(ev) {
+      this.getTableData2(ev.dateFrom, ev.dateTo);
+    }
+  },
+  beforeMount() {
+    this.getTableData1 = _.throttle((from, to) => {
+      const to1 = new Date(to);
+      to1.setDate(to.getDate() + 1);
+
+      getTableData1(
+        from.toISOString(),
+        to.toISOString()
+      ).then(({ data: responseData }) => {
+        this.table1Data = responseData.data;
+      });
+    });
+    this.getTableData2 = _.throttle((from, to) => {
+      const to1 = new Date(to);
+      to1.setDate(to.getDate() + 1);
+
+      getTableData2(
+        from.toISOString(),
+        to.toISOString()
+      ).then(({ data: responseData }) => {
+        this.table2Data = responseData.data;
+      });
+    });
   },
   mounted() {
     getPercentageMonth().then(({ data: responseData }) => {
@@ -82,25 +120,17 @@ export default {
         responseData.data[0]["On_time_percentage_current_year"]
       );
     });
-    getTableData1().then(({ data: responseData }) => {
-      this.table1.data = responseData.data;
-    });
-    getTableData2().then(({ data: responseData }) => {
-      this.table2.data = responseData.data;
-    });
     Promise.all([getCompletedCount(), getRequestedCount()])
       .then(result => result.map(res => res.data.data))
       .then(result => {
         const mergedArr = result[1].map(el => ({
-          requested: el['Sum of Requested'],
-          year: el['YearCreated'],
-          week: el['WeekCreated']
+          requested: el["Sum of Requested"],
+          year: el["YearCreated"],
+          week: el["WeekCreated"]
         }));
         result[0].forEach(el0 => {
           const el1 = mergedArr.find(
-            el =>
-              el.year === el0.YearShipped &&
-              el.week === el0.WeekShipped
+            el => el.year === el0.YearShipped && el.week === el0.WeekShipped
           );
 
           if (el1) {
@@ -109,8 +139,7 @@ export default {
             const i = mergedArr.findIndex(
               el1 =>
                 el1.year > el0.YearShipped ||
-                (el1.year === el0.YearShipped &&
-                  el1.week > el0.WeekShipped)
+                (el1.year === el0.YearShipped && el1.week > el0.WeekShipped)
             );
 
             if (i >= 0) {

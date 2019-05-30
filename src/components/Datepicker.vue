@@ -68,6 +68,7 @@ export default {
           dates: evt.date
         }
       ];
+      this.$emit("dateChange", evt.date);
     }
   },
   directives: {

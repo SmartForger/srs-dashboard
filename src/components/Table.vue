@@ -9,7 +9,13 @@
         </thead>
         <tbody>
           <tr :key="i" v-for="(row, i) in pagedData">
-            <td :key="j" v-for="(col, j) in columns">{{ row[col.field] }}</td>
+            <td
+              :key="j"
+              v-for="(col, j) in columns"
+            >{{ col.format ? col.format(row[col.field]) : row[col.field] }}</td>
+          </tr>
+          <tr v-if="data.length === 0">
+            <td class="no-data-column" :colspan="columns.length">No data available</td>
           </tr>
         </tbody>
       </table>
@@ -34,8 +40,8 @@
     <div class="separator"/>
     <div class="footer">
       <div class="datepickers">
-        <Datepicker label="Start Date" :date="dateFrom"/>
-        <Datepicker label="End Date" :date="dateTo"/>
+        <Datepicker label="Start Date" :date="dateFrom" @dateChange="dateFromChanged"/>
+        <Datepicker label="End Date" :date="dateTo" @dateChange="dateFromChanged"/>
       </div>
       <div>
         <slot></slot>
@@ -83,11 +89,9 @@ export default {
   },
   data() {
     const dateTo = new Date();
-    const dateFrom = new Date(
-      dateTo.getFullYear(),
-      dateTo.getMonth(),
-      1
-    );
+    const dateFrom = new Date(dateTo.getFullYear(), dateTo.getMonth(), 1);
+
+    this.$emit("filterChange", { dateFrom, dateTo });
 
     return {
       page: 0,
@@ -114,6 +118,20 @@ export default {
     },
     handlePageSizeChange(ev) {
       this.paginate();
+    },
+    dateFromChanged(ev) {
+      this.dateFrom = ev;
+      this.$emit("filterChange", {
+        dateFrom: this.dateFrom,
+        dateTo: this.dateTo
+      });
+    },
+    dateToChanged(ev) {
+      this.dateTo = ev;
+      this.$emit("filterChange", {
+        dateFrom: this.dateFrom,
+        dateTo: this.dateTo
+      });
     }
   },
   mounted() {
@@ -217,5 +235,10 @@ td {
       color: #555;
     }
   }
+}
+.no-data-column {
+  text-align: center;
+  padding: 20px;
+  width: 100%;
 }
 </style>

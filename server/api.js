@@ -8,9 +8,17 @@ const {
   getTableData
 } = require("./sql");
 
-const handler = query => async (req, res) => {
+const handler = (query, hasDateRange) => async (req, res) => {
   try {
-    const result = await query();
+    let result;
+
+    if (hasDateRange) {
+      const { from, to } = req.query;
+      result = await query(from, to);
+    } else {
+      result = await query();
+    }
+
     res.json({
       data: result
     });
@@ -28,8 +36,8 @@ module.exports = () => {
   router.get("/percentage/year", handler(getOnTimeYear));
   router.get("/count/completed", handler(countCompletedByDate));
   router.get("/count/requested", handler(countRequestedByDate));
-  router.get("/data/raw", handler(getRawData));
-  router.get("/data/table", handler(getTableData));
+  router.get("/data/raw", handler(getRawData, true));
+  router.get("/data/table", handler(getTableData, true));
 
   return router;
 };

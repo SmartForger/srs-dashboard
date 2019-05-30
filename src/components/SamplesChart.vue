@@ -35,6 +35,10 @@ export default {
   },
   methods: {
     makeChart() {
+      if (!this.$refs.container) {
+        return;
+      }
+
       const svgWidth = this.$refs.container.clientWidth;
       const svgHeight = this.$refs.container.clientHeight;
       this.dimensions = {
@@ -174,8 +178,11 @@ export default {
           const dStart = new Date(d.year, 0, days);
           const startOfWeek = dStart.getDate() - dStart.getDay();
           dStart.setDate(startOfWeek);
-          const dEnd = new Date(dStart);
-          dEnd.setDate(startOfWeek + 6);
+          const dEnd = new Date(
+            dStart.getFullYear(),
+            dStart.getMonth(),
+            dStart.getDate() + 6
+          );
           return `${dStart.getMonth() +
             1}/${dStart.getDate()} - ${dEnd.getMonth() + 1}/${dEnd.getDate()}`;
         });

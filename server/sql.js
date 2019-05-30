@@ -76,22 +76,46 @@ Group by YearCreated, WeekCreated
   return pool.query(sql);
 }
 
-function getTableData() {
+function getTableData(from, to) {
+  let where = [];
+  if (from) {
+    where.push(`B.Time_Shipped >= "${from}"`);
+  }
+  if (to) {
+    where.push(`B.Time_Shipped < "${to}"`);
+  }
+  const whereStr = where.length > 0 ? `WHERE ${where.join(" AND ")}` : '';
+
   const sql = `
-SELECT A.Request_ID, B.Customer_Name, A.Sample_ID, A.qty, B.Time_created as 'Date Requested', B.Time_Shipped as 'Date Completed'
+SELECT
+  A.Request_ID, B.Customer_Name, A.Sample_ID, A.qty,
+  B.Time_created as 'Date Requested', B.Time_Shipped as 'Date Completed'
 FROM sample_request.rd_sample A
 Join sample_request.rd_request B 
-ON A.Request_ID = B.Request_ID;
+ON A.Request_ID = B.Request_ID
+${whereStr};
   `;
 
   return pool.query(sql);
 }
 
-function getRawData() {
+function getRawData(from, to) {
+  let where = [];
+  if (from) {
+    where.push(`Time_Shipped >= "${from}"`);
+  }
+  if (to) {
+    where.push(`Time_Shipped < "${to}"`);
+  }
+  const additionalWhere = where.length > 0 ? `and ${where.join(" and ")}` : '';
+
   const sql = `
-select Request_ID ,Customer_Name, Ship_Date, date(Time_Shipped) as 'Time_Shipped', Completed_By, if(date(Ship_Date) >= date(Time_Shipped), 'ON TIME' ,'LATE') as 'Status' from rd_request 
-where Status = 'shipped'  and not isnull(Time_Shipped)
+select
+  Request_ID ,Customer_Name, Ship_Date, date(Time_Shipped) as 'Time_Shipped', Completed_By,
+  if(date(Ship_Date) >= date(Time_Shipped), 'ON TIME' ,'LATE') as 'Status' from rd_request 
+where Status = 'shipped'  and not isnull(Time_Shipped) ${additionalWhere}
   `;
+
   return pool.query(sql);
 }
 
