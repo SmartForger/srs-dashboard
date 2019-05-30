@@ -83,6 +83,9 @@ export default {
     },
     handleTable2FilterChange(ev) {
       this.getTableData2(ev.dateFrom, ev.dateTo);
+    },
+    formatDate(date) {
+      return date.toISOString().replace('T', ' ').slice(0, 19);
     }
   },
   beforeMount() {
@@ -90,8 +93,8 @@ export default {
       const to1 = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
 
       getTableData1(
-        from.toISOString(),
-        to1.toISOString()
+        this.formatDate(from),
+        this.formatDate(to1)
       ).then(({ data: responseData }) => {
         this.table1Data = responseData.data;
       });
@@ -100,8 +103,8 @@ export default {
       const to1 = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
 
       getTableData2(
-        from.toISOString(),
-        to1.toISOString()
+        this.formatDate(from),
+        this.formatDate(to1)
       ).then(({ data: responseData }) => {
         this.table2Data = responseData.data;
       });
