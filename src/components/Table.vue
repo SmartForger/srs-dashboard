@@ -33,7 +33,15 @@
       </div>
       <div class="paginator-actions">
         <a @click="changePage(page)">&lt;</a>
-        <a :key="i" :class="pageLinkClass(p)" @click="changePage(p)" v-for="(p, i) in pages">{{ p }}</a>
+        <a class="p-link" @click="changePage(1)" v-if="page > 2">1</a>
+        <a class="p-link disabled" v-if="page > 3">...</a>
+        <a class="p-link" @click="changePage(page - 1)">{{ pageToStrLeft(page, 2) }}</a>
+        <a class="p-link" @click="changePage(page)">{{ pageToStrLeft(page, 1) }}</a>
+        <input class="p-input" type="text" v-model="pageInput" @change="changePageInput"/>
+        <a class="p-link" @click="changePage(page + 2)">{{ pageToStrRight(page, 1) }}</a>
+        <a class="p-link" @click="changePage(page + 3)">{{ pageToStrRight(page, 2) }}</a>
+        <a class="p-link disabled" v-if="page < pageCount - 4">...</a>
+        <a class="p-link" @click="changePage(pageCount)" v-if="page < pageCount - 3">{{ pageCount }}</a>
         <a @click="changePage(page + 2)">&gt;</a>
       </div>
     </div>
@@ -98,23 +106,47 @@ export default {
       pageSize: 10,
       pagedData: [],
       dateFrom,
-      dateTo
+      dateTo,
+      pageInput: 1
     };
   },
   methods: {
     pageLinkClass(p) {
       return p === this.page + 1 ? "p-link current" : "p-link";
     },
+    pageToStrLeft(p, offset) {
+      return p >= offset ? p - offset + 1 : '';
+    },
+    pageToStrRight(p, offset) {
+      return p < this.pageCount - offset ? p + offset + 1 : '';
+    },
     paginate() {
       this.pagedData = this.data.slice(this.startIndex - 1, this.endIndex);
     },
     changePage(p) {
       if (p < 1 || p > this.pageCount) {
+        this.page = 0;
+        this.pageInput = 1;
+        return;
+      }
+      if (p > this.pageCount) {
+        this.page = pageCount - 1;
+        this.pageInput = this.pageCount;
         return;
       }
 
       this.page = p - 1;
+      this.pageInput = p;
       this.paginate();
+    },
+    changePageInput(ev) {
+      const p = parseInt(this.pageInput);
+      if (Number.isNaN(p)) {
+        this.pageInput = this.page + 1;
+        return;
+      }
+
+      this.changePage(p);
     },
     handlePageSizeChange(ev) {
       this.paginate();
@@ -221,7 +253,7 @@ td {
     padding: 0 5px;
     cursor: pointer;
 
-    &:hover:not(.current) {
+    &:hover:not(.disabled) {
       color: #5fc3a1 !important;
     }
 
@@ -230,10 +262,19 @@ td {
       color: #aaa;
     }
 
-    &.current {
+    &.disabled {
       cursor: default;
       color: #555;
     }
+  }
+
+  .p-input {
+    box-sizing: border-box;
+    text-align: center;
+    font-size: 15px;
+    padding: 4px;
+    color: #333;
+    width: 48px;
   }
 }
 .no-data-column {
