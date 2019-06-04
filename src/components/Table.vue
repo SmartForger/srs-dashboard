@@ -130,7 +130,7 @@ export default {
         return;
       }
       if (p > this.pageCount) {
-        this.page = pageCount - 1;
+        this.page = this.pageCount - 1;
         this.pageInput = this.pageCount;
         return;
       }
@@ -139,7 +139,7 @@ export default {
       this.pageInput = p;
       this.paginate();
     },
-    changePageInput(ev) {
+    changePageInput() {
       const p = parseInt(this.pageInput);
       if (Number.isNaN(p)) {
         this.pageInput = this.page + 1;
@@ -148,7 +148,7 @@ export default {
 
       this.changePage(p);
     },
-    handlePageSizeChange(ev) {
+    handlePageSizeChange() {
       this.paginate();
     },
     dateFromChanged(ev) {

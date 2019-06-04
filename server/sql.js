@@ -13,11 +13,11 @@ const pool = mysql.createPool({
 
 function getOnTimeMonth() {
   const sql = `
-select (A.numerator/B.denominator)*100 as 'On_time_percentage_current_month' from (select  1 as 'recordid' ,count(Request_ID) as 'numerator' 
-from rd_request
-where date( Ship_Date) >= date( Time_Shipped)  and  Status = 'shipped' and month( Time_Shipped) = month(now()) and not isnull(Time_Shipped) ) A join (select  1 as 'recordid' ,count(Request_ID) as 'denominator' 
-from rd_request
-where   Status = 'shipped' and month( Time_Shipped) = month(now()) and not isnull(Time_Shipped) ) B on A.recordid = B.recordid 
+  select (A.numerator/B.denominator)*100 as 'On_time_percentage_current_month' from (select  1 as 'recordid' ,count(Request_ID) as 'numerator' 
+  from rd_request
+  where date( Ship_Date) >= date( Time_Shipped)  and  Status = 'shipped' and month( Time_Shipped) = month(now()) and year(time_shipped) = year(now()) and not isnull(Time_Shipped) ) A join (select  1 as 'recordid' ,count(Request_ID) as 'denominator' 
+  from rd_request
+  where   Status = 'shipped' and month( Time_Shipped) = month(now()) and year(time_shipped) = year(now()) and not isnull(Time_Shipped) ) B on A.recordid = B.recordid 
   `;
 
   return pool.query(sql);
